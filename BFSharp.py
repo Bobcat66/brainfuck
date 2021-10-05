@@ -1,7 +1,7 @@
 import re
 
 statements = {
-    'LOAD' : re.compile(r'LOAD C([0-9]+)'),
+    'LOAD' : re.compile(r'LOAD C?([0-9]+)'),
     'ADD' : re.compile(r'ADD ([0-9]+)'),
     'OUT' : re.compile(r'OUT'),
     'SET' : re.compile(r'SET ([0-9]+)'),
@@ -85,17 +85,18 @@ class Execute:
     
     def parse(self):
         """
-        Parses and tokenizes statements and creates an AST
+        Parses and tokenizes statements and creates an Abstract Syntax Tree
         """
         parsedStatements = []
         for token in self.tokens:
-            for statement in statements.values():
-                stateSearch = statement(1).search(token)
+            for statement in statements.items():
+                stateSearch = re.search(statement[1],token)
                 if stateSearch is not None:
-                    if stateSearch.group(1) is not None:
-                        command = (statement(0),stateSearch.group(1))
-                    else:
-                        command = (statement(0))
+                    try:
+                        command = (statement[0],stateSearch.group(1))
+                    except IndexError:
+                        #Sometimes statements will only contain their name, and if stateSearch.group(1) is called it will raise an IndexError
+                        command = (statement[0],)
                     parsedStatements.append(command)
         return parsedStatements
 
@@ -103,4 +104,9 @@ class Execute:
     def execute(self):
         i = 0
         looplist = []
+        self.parseCode
+        while i < len(self.parseCode):
+            command = self.parseCode[i]
+            if command[0] == 'LOAD':
+                pass
             
