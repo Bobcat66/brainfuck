@@ -6,8 +6,8 @@ statements = {
     'OUT' : re.compile(r'OUT'),
     'SET' : re.compile(r'SET ([0-9]+)'),
     'SUBTRACT' : re.compile(r'SUBTRACT ([0-9]+)'),
-    'MOVELEFT' : re.compile(r'LEFT ([0-9]+)'),
-    'MOVERIGHT' : re.compile(r'RIGHT ([0-9]+)'),
+    'MOVEFWD' : re.compile(r'FWD ([0-9]+)'),
+    'MOVEBACK' : re.compile(r'BACK ([0-9]+)'),
     'IN' : re.compile(r'IN'),
     'LEFTBRACKET' : re.compile(r'\['),
     'RIGHTBRACKET' : re.compile(r'\]'),
@@ -75,6 +75,9 @@ class pointer:
     def cellSubtract(self, subtractNum):
         for i in range(int(subtractNum)):
             self.cell.decrement()
+    
+    def setValue(self, value):
+        self.cell.value = value
 
 class Execute:
     def __init__(self, pointer, inCode):
@@ -103,10 +106,52 @@ class Execute:
 
     def execute(self):
         i = 0
-        looplist = []
+        loopList = []
         self.parseCode
         while i < len(self.parseCode):
             command = self.parseCode[i]
-            if command[0] == 'LOAD':
-                pass
+            if command[0] == 'LOAD': self.pointer.setPosition(int(command[1]))
+            elif command[0] == 'ADD': self.pointer.cellAdd(int(command[1]))
+            elif command[0] == 'OUT': print(self.pointer.cell.str)
+            elif command[0] == 'SET': self.pointer.setValue(int(command[1]))
+            elif command[0] == 'SUBTRACT': self.pointer.cellSubtract(int(command[1]))
+            elif command[0] == 'MOVEFWD': self.pointer.moveFwd(int(command[1]))
+            elif command[0] == 'MOVEBACK': self.pointer.moveBack(int(command[1]))
+            elif command[0] == 'IN':
+                inputVar = input()
+                if len(inputVar) > 1:
+                    raise ValueError("Input should be exactly one character long")
+                self.pointer.cell.value = ord(inputVar)
+            elif command[0] == 'LEFTBRACKET':
+                #checks if loop exists
+                loopExists = False
+                for ele in loopList:
+                    if ele.startPos == i: 
+                        loopExists = True
+                        break
+                if not loopExists:
+                    loopList.append(loop(i,None))
+                #if the cell the pointer is on is equal to zero, jump to end bracket
+                if self.pointer.cell.value == 0:
+                    for ele in loopList:
+                        if ele.startPos == i and ele.endPos is not None:
+                            i = ele.endPos
+            
+            elif command[0] == 'RIGHTBRACKET':
+                bracket = None
+
+                #identifies this bracket's matching bracket
+                for ele in reversed(loopList):
+                    if ele.endPos is None:
+                        ele.endPos = i
+                        bracket = ele
+                        break
+                    if ele.endPos == i:
+                        bracket = ele
+                        break
+                #sends execution pointer back to beginning of loop if data pointer's value is 0
+                if self.pointer.cell.value != 0: 
+                    i = bracket.startPos - 1 #subtracts one because i will still iterate at the end of the while loop
+            
+            i += 1
             
