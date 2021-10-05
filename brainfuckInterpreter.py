@@ -65,7 +65,7 @@ class Execute():
             elif code[i] == '.': print(self.pointer.cell.str(),end="")
             elif code[i] == ',':
                 inputVar = input()
-                if inputVar.len() > 1:
+                if len(inputVar) > 1:
                     raise ValueError("Input should be exactly one character long")
                 self.pointer.cell.value = ord(inputVar)
             elif code[i] == '[':
