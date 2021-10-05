@@ -112,7 +112,7 @@ class Execute:
             command = self.parseCode[i]
             if command[0] == 'LOAD': self.pointer.setPosition(int(command[1]))
             elif command[0] == 'ADD': self.pointer.cellAdd(int(command[1]))
-            elif command[0] == 'OUT': print(self.pointer.cell.str)
+            elif command[0] == 'OUT': print(self.pointer.cell.str(),end="")
             elif command[0] == 'SET': self.pointer.setValue(int(command[1]))
             elif command[0] == 'SUBTRACT': self.pointer.cellSubtract(int(command[1]))
             elif command[0] == 'MOVEFWD': self.pointer.moveFwd(int(command[1]))
@@ -154,4 +154,11 @@ class Execute:
                     i = bracket.startPos - 1 #subtracts one because i will still iterate at the end of the while loop
             
             i += 1
+        
+        print('\n')
+        for cell in cells.items():
+            outtext = f'Cell {cell[0]}: {cell[1]}'
+            if cell[0] == self.pointer.position:
+                outtext += ' <<<POINTER'
+            print(outtext)
             
